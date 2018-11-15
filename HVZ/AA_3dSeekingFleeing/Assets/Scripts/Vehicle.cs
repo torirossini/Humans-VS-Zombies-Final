@@ -27,6 +27,7 @@ public abstract class Vehicle : MonoBehaviour
     private VehicleManager myManager;
     private List<GameObject> obstacles;
     private List<GameObject> obstaclesInFront;
+    private List<GameObject> potentialCollisions;
 
     private Vector3 forwardVector;
     private Vector3 rightVector;
@@ -61,6 +62,7 @@ public abstract class Vehicle : MonoBehaviour
         forwardVector = Vector3.Normalize(vehiclePosition + direction);
         rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
         obstaclesInFront = new List<GameObject>();
+        potentialCollisions = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -68,6 +70,8 @@ public abstract class Vehicle : MonoBehaviour
     {
         forwardVector = Vector3.Normalize(vehiclePosition + direction);
         rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
+
+        ApplyForce(AvoidObstacle());
 
         if (Input.GetKeyUp(KeyCode.D))
         {
@@ -227,7 +231,10 @@ public abstract class Vehicle : MonoBehaviour
     private Vector3 AvoidObstacle()
     {
         obstaclesInFront.Clear();
+        potentialCollisions.Clear();
+
         float dot;
+
         //So I guess all vehicles are aware of all obstacles in the scene
         foreach (GameObject obst in obstacles)
         {
@@ -245,13 +252,28 @@ public abstract class Vehicle : MonoBehaviour
         //If the dot of the vector to the obstacle and the right vector is less than the sum of the two radii, it has a potential collision!
         foreach (GameObject obst in obstaclesInFront)
         {
-            if (Vector3.Dot((transform.position - obst.transform.position), rightVector) < (radius + obst.GetComponent<Obstacle>().Radius))
+            if (Mathf.Abs(Vector3.Dot((transform.position - obst.transform.position), rightVector)) < (radius + obst.GetComponent<Obstacle>().Radius))
             {
-
+                potentialCollisions.Add(obst);
             }
         }
 
-        return Vector3.zero;
+        //If it's on the left, dodge right. Otherwise, dodge left. More effective depending on how close it is.
+        Vector3 avoidForce = Vector3.zero;
+
+        foreach(GameObject obst in potentialCollisions)
+        {
+            if(Vector3.Dot((transform.position - obst.transform.position), rightVector) > 0)
+            {
+                avoidForce += (-rightVector * 5) - (transform.position - obst.transform.position);
+            }
+            else
+            {
+                avoidForce += (rightVector * 5) - (transform.position - obst.transform.position);
+            }
+        }
+
+        return avoidForce;
     }
 
     /// <summary>

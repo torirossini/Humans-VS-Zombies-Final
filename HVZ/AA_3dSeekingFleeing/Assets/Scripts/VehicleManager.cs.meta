@@ -10,7 +10,8 @@ MonoImporter:
       type: 2}
   - TargetPrefab: {fileID: 1493783349230804, guid: 1a93ac8ae2e45744a844ad8cba22f787,
       type: 2}
-  - targetObj: {instanceID: 0}
+  - ObstaclePrefab: {fileID: 1103832432602440, guid: d33e6ad0b2db3bf48a4fd10310aeaa68,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

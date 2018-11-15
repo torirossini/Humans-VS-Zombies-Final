@@ -21,6 +21,7 @@ public class Obstacle : MonoBehaviour
 	void Start ()
     {
         obstaclePosition = transform.position;
+        radius = transform.localScale.x / 2;
 	}
 	
 	// Update is called once per frame
