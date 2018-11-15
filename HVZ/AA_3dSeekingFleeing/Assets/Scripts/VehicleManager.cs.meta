@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c272c1393997a9345a32d5bf20069015
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - ZombiePrefab: {fileID: 1329603326588080, guid: f39a1791d5d6a69468743798228899ba,
+      type: 2}
+  - HumanPrefab: {fileID: 1754157484113740, guid: 2abbd0bd1651a9149a3aa84a2f81e052,
+      type: 2}
+  - TargetPrefab: {fileID: 1493783349230804, guid: 1a93ac8ae2e45744a844ad8cba22f787,
+      type: 2}
+  - targetObj: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
