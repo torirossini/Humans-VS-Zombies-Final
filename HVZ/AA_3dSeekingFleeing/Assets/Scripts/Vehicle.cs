@@ -14,10 +14,13 @@ public abstract class Vehicle : MonoBehaviour
     public Vector3 direction;
     public Vector3 velocity;
     public Vector3 rotation;
+    public float SecondsAhead = 2;
 
-    public Material mat1;
-    public Material mat2;
-    public Material mat3;
+    public Material greenForward;
+    public Material blueRight;
+    public Material blackSeeking;
+
+    public GameObject FuturePosition;
 
 
     // Floats
@@ -31,6 +34,7 @@ public abstract class Vehicle : MonoBehaviour
 
     private Vector3 forwardVector;
     private Vector3 rightVector;
+    private GameObject futurePosition;
 
     private bool showLines;
 
@@ -50,6 +54,11 @@ public abstract class Vehicle : MonoBehaviour
         get { return showLines; }
     }
 
+    public GameObject FuturePositionObject
+    {
+        get { return futurePosition; }
+        set { futurePosition = value; }
+    }
     #endregion
 
     // Use this for initialization
@@ -63,11 +72,13 @@ public abstract class Vehicle : MonoBehaviour
         rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
         obstaclesInFront = new List<GameObject>();
         potentialCollisions = new List<GameObject>();
+        futurePosition = Instantiate(FuturePosition);
     }
 
     // Update is called once per frame
     void Update()
     {
+        futurePosition.transform.localPosition = transform.localPosition + velocity * SecondsAhead; 
         forwardVector = Vector3.Normalize(vehiclePosition + direction);
         rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
 
@@ -107,22 +118,33 @@ public abstract class Vehicle : MonoBehaviour
     {
         if (showLines)
         {
-            if (mat1 != null)
+            if(!futurePosition.activeInHierarchy)
             {
-                mat1.SetPass(0);
+                futurePosition.SetActive(true);
+            }
+            if (greenForward != null)
+            {
+                greenForward.SetPass(0);
                 GL.Begin(GL.LINES);
                 GL.Vertex(vehiclePosition);
                 GL.Vertex(vehiclePosition + (direction * 3));
                 GL.End();
             }
-            if (mat2 != null)
+            if (blueRight != null)
             {
                 Vector3 right = new Vector3(direction.z, direction.y, -direction.x);
-                mat2.SetPass(0);
+                blueRight.SetPass(0);
                 GL.Begin(GL.LINES);
                 GL.Vertex(vehiclePosition);
                 GL.Vertex(vehiclePosition + (right * 3));
                 GL.End();
+            }
+        }
+        else
+        {
+            if (futurePosition.activeInHierarchy)
+            {
+                futurePosition.SetActive(false);
             }
         }
     }
@@ -146,9 +168,6 @@ public abstract class Vehicle : MonoBehaviour
         ApplyForce(friction);
     }
 
-    // SEEK METHOD
-    // All Vehicles have the knowledge of how to seek
-    // They just may not be calling it all the time
     /// <summary>
     /// Seek
     /// </summary>
@@ -212,6 +231,44 @@ public abstract class Vehicle : MonoBehaviour
     public Vector3 Flee(GameObject target)
     {
         return Flee(target.transform.position);
+    }
+
+    public Vector3 Pursue(GameObject target)
+    {
+        Vector3 targetPosition = target.transform.position;
+        // Step 1: Find DV (desired velocity)
+        Vector3 desiredVelocity = (targetPosition + target.GetComponent<Vehicle>().velocity * SecondsAhead) - vehiclePosition;
+
+        // Step 2: Scale vel to max speed
+        desiredVelocity = Vector3.ClampMagnitude(desiredVelocity, maxSpeed);
+        desiredVelocity.Normalize();
+        desiredVelocity = desiredVelocity * maxSpeed;
+
+        // Step 3:  Calculate seeking steering force
+        Vector3 pursueForce = desiredVelocity - velocity;
+
+        // Step 4: Return force
+        return pursueForce;
+    }
+
+    public Vector3 Evade(GameObject target)
+    {
+        Vector3 targetPosition = target.transform.position;
+
+        // Step 1: Find DV (desired velocity)
+        // TargetPos - CurrentPos
+        Vector3 desiredVelocity = (targetPosition + target.GetComponent<Vehicle>().velocity * SecondsAhead) - vehiclePosition;
+
+        // Step 2: Scale vel to max speed
+        // desiredVelocity = Vector3.ClampMagnitude(desiredVelocity, maxSpeed);
+        desiredVelocity.Normalize();
+        desiredVelocity = desiredVelocity * maxSpeed;
+
+        // Step 3:  Calculate seeking steering force
+        Vector3 evadeForce = (desiredVelocity - velocity) * -1;
+
+        // Step 4: Return force
+        return evadeForce;
     }
 
     /// <summary>

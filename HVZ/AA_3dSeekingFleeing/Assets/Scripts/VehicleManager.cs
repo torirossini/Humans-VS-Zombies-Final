@@ -77,6 +77,7 @@ public class VehicleManager : MonoBehaviour
                 {
                     Debug.Log("Collided");
                     toRemove.Add(i);
+                    Humans[i].GetComponent<Vehicle>().FuturePositionObject.SetActive(false);
                 }
             }
         }

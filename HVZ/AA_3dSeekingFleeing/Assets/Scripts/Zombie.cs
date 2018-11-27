@@ -22,9 +22,9 @@ public class Zombie : Vehicle
         base.OnRenderObject();
         if (ShowLines)
         {
-            if (mat3 != null && currentlySeeking != null)
+            if (blackSeeking != null && currentlySeeking != null)
             {
-                mat3.SetPass(0);
+                blackSeeking.SetPass(0);
                 GL.Begin(GL.LINES);
                 GL.Vertex(vehiclePosition);
                 GL.Vertex(currentlySeeking.transform.position);
@@ -40,7 +40,7 @@ public class Zombie : Vehicle
     {
         Vector3 ultimateForce = Vector3.zero;
 
-        ultimateForce += Seek(currentlySeeking);
+        ultimateForce += Pursue(currentlySeeking);
 
         ApplyForce(ultimateForce);
     }

@@ -3,7 +3,12 @@ guid: c48ae966df89a83469cdfa6ac1db89a5
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - greenForward: {fileID: 2100000, guid: d5f30ea1ea6919d448fbf17e5a880187, type: 2}
+  - blueRight: {fileID: 2100000, guid: 77b776021dec74743961ccb7ccbd3233, type: 2}
+  - blackSeeking: {fileID: 2100000, guid: 5cb6a5b2d1410784593690c0cdc62ed6, type: 2}
+  - redZombieFuture: {fileID: 2100000, guid: 790a81c73a9fa894abaef5122233021f, type: 2}
+  - purpleHumanFuture: {fileID: 2100000, guid: 783d2875ca116ee4da9f9a5b656c18de, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
