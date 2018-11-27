@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 23237558328192522}
   - component: {fileID: 135602906342627444}
   m_Layer: 0
-  m_Name: HumanFuture 1
+  m_Name: HumaFuture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

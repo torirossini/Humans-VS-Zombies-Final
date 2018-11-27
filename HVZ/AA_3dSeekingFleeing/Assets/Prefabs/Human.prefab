@@ -113,8 +113,11 @@ MonoBehaviour:
   direction: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
   rotation: {x: 0, y: 0, z: 0}
-  mat1: {fileID: 2100000, guid: d5f30ea1ea6919d448fbf17e5a880187, type: 2}
-  mat2: {fileID: 2100000, guid: 77b776021dec74743961ccb7ccbd3233, type: 2}
-  mat3: {fileID: 2100000, guid: 5cb6a5b2d1410784593690c0cdc62ed6, type: 2}
+  SecondsAhead: 2
+  greenForward: {fileID: 2100000, guid: d5f30ea1ea6919d448fbf17e5a880187, type: 2}
+  blueRight: {fileID: 2100000, guid: 77b776021dec74743961ccb7ccbd3233, type: 2}
+  blackSeeking: {fileID: 2100000, guid: 5cb6a5b2d1410784593690c0cdc62ed6, type: 2}
+  FuturePosition: {fileID: 1913483544557360, guid: 58a4cd5ee57d55240862ecf9f07898ea,
+    type: 2}
   mass: 0.3
-  maxSpeed: 4
+  maxSpeed: 5
