@@ -152,6 +152,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 114010643348020412, guid: bfd58141657c7834f8a9ee0696d5dd52,
+        type: 2}
+      propertyPath: StartingObstacles
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bfd58141657c7834f8a9ee0696d5dd52, type: 2}
   m_IsPrefabAsset: 0

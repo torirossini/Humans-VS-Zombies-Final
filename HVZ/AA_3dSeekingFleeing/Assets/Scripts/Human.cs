@@ -39,7 +39,7 @@ public class Human : Vehicle
 
         if(DistanceTo(currentlyFleeing) < 10f)
         {
-            ultimateForce += Flee(currentlyFleeing);
+            ultimateForce += Evade(currentlyFleeing);
         }
         else
         {

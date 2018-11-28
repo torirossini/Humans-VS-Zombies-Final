@@ -9,46 +9,45 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1754157484113740}
+  m_RootGameObject: {fileID: 1913483544557360}
   m_IsPrefabAsset: 1
---- !u!1 &1754157484113740
+--- !u!1 &1913483544557360
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4912759522855344}
-  - component: {fileID: 33452977921683214}
-  - component: {fileID: 23209822614937970}
-  - component: {fileID: 65068193572723740}
-  - component: {fileID: 114104448142268852}
+  - component: {fileID: 4162596712803276}
+  - component: {fileID: 33915083393053464}
+  - component: {fileID: 23237558328192522}
+  - component: {fileID: 135602906342627444}
   m_Layer: 0
-  m_Name: Human
+  m_Name: HumaFuture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4912759522855344
+--- !u!4 &4162596712803276
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1754157484113740}
+  m_GameObject: {fileID: 1913483544557360}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 17.64, y: 0.5, z: 0}
+  m_LocalPosition: {x: 30.092045, y: 3.8870263e-17, z: -17.50561}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23209822614937970
+--- !u!23 &23237558328192522
 MeshRenderer:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1754157484113740}
+  m_GameObject: {fileID: 1913483544557360}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -58,7 +57,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 5ff6ec7cf410c97478201fb1f9e89409, type: 2}
+  - {fileID: 2100000, guid: 755a02dbf1d39f5489ccc6633880b7ce, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -78,46 +77,22 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &33452977921683214
+--- !u!33 &33915083393053464
 MeshFilter:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1754157484113740}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &65068193572723740
-BoxCollider:
+  m_GameObject: {fileID: 1913483544557360}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!135 &135602906342627444
+SphereCollider:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1754157484113740}
+  m_GameObject: {fileID: 1913483544557360}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114104448142268852
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1754157484113740}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cb9d02d761cd719428066e0949554c04, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  vehiclePosition: {x: 0, y: 0, z: 0}
-  acceleration: {x: 0, y: 0, z: 0}
-  direction: {x: 0, y: 0, z: 0}
-  velocity: {x: 0, y: 0, z: 0}
-  rotation: {x: 0, y: 0, z: 0}
-  SecondsAhead: 2
-  greenForward: {fileID: 2100000, guid: d5f30ea1ea6919d448fbf17e5a880187, type: 2}
-  blueRight: {fileID: 2100000, guid: 77b776021dec74743961ccb7ccbd3233, type: 2}
-  blackSeeking: {fileID: 2100000, guid: 5cb6a5b2d1410784593690c0cdc62ed6, type: 2}
-  FuturePosition: {fileID: 1913483544557360, guid: 58a4cd5ee57d55240862ecf9f07898ea,
-    type: 2}
-  mass: 0.3
-  maxSpeed: 5
