@@ -228,6 +228,8 @@ public abstract class Vehicle : MonoBehaviour
         }
     }
 
+
+    //Remember to add threat radius later
     private Vector3 AvoidObstacle()
     {
         obstaclesInFront.Clear();
