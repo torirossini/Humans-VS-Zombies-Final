@@ -10,6 +10,8 @@ public class Human : Vehicle
     public GameObject currentlyFleeing;
     public float Height = 2f;
 
+    public float AvoidEnemyWeight = 1;
+
     #region Properties
     public GameObject CurrentlyFleeing
     {
@@ -31,13 +33,13 @@ public class Human : Vehicle
     {
         Vector3 ultimateForce = Vector3.zero;
 
-        if(currentlyFleeing != null && DistanceTo(currentlyFleeing) < 10f)
+        if(currentlyFleeing != null && DistanceTo(currentlyFleeing) < 5f)
         {
-            ultimateForce += Flee(currentlyFleeing);
+            ultimateForce += Flee(currentlyFleeing) * AvoidEnemyWeight;
         }
-        else if(currentlyFleeing != null && DistanceTo(currentlyFleeing) < 20f)
+        else if(currentlyFleeing != null && DistanceTo(currentlyFleeing) < 10f)
         {
-            ultimateForce += Evade(currentlyFleeing);
+            ultimateForce += Evade(currentlyFleeing) * AvoidEnemyWeight;
         }
         else if (!IsAvoiding)
         {

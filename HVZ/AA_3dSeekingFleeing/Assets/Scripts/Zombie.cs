@@ -11,6 +11,8 @@ public class Zombie : Vehicle
     public bool wandering;
     public float Height = 5f;
 
+    public float SeekingWeight = 1;
+
     private void Start()
     {
         base.Start();
@@ -23,7 +25,7 @@ public class Zombie : Vehicle
     private void OnRenderObject()
     {
         base.OnRenderObject();
-        if (ShowLines)
+        if (transform.parent.transform.GetComponent<VehicleManager>().ShowLines)
         {
             if (blackSeeking != null && currentlySeeking != null)
             {
@@ -49,7 +51,7 @@ public class Zombie : Vehicle
         }
         else
         {
-            ultimateForce += Pursue(currentlySeeking);
+            ultimateForce += Pursue(currentlySeeking) * SeekingWeight;
         }
 
         ApplyForce(ultimateForce);

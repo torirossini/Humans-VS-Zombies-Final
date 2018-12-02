@@ -22,7 +22,6 @@ public abstract class Vehicle : MonoBehaviour
 
     public GameObject FuturePosition;
 
-
     // Floats
     public float mass;
     public float maxSpeed;
@@ -39,17 +38,11 @@ public abstract class Vehicle : MonoBehaviour
     private List<GameObject> obstaclesInFront;
     private List<GameObject> potentialCollisions;
 
-    private List<GameObject> tooClose;
-    private List<GameObject> humans;
-    private List<GameObject> zombies;
-
-
-
     private Vector3 forwardVector;
     private Vector3 rightVector;
     private GameObject futurePosition;
 
-    private bool showLines;
+
     private bool isExecuting;
     private bool isAvoiding;
     //Collision Detection
@@ -61,11 +54,6 @@ public abstract class Vehicle : MonoBehaviour
     {
         get { return radius; }
         set { radius = value; }
-    }
-
-    public bool ShowLines
-    {
-        get { return showLines; }
     }
 
     public GameObject FuturePositionObject
@@ -83,10 +71,9 @@ public abstract class Vehicle : MonoBehaviour
     #endregion
 
     #region Weighting
-    public float AvoidObstacleWeight = 7;
+    public float AvoidObstacleWeight = 1;
     public float AvoidEdgeWeight = 1;
-    public float AvoidEnemyWeight = 1;
-    public float SeekingWeight = 1;
+
 
     #endregion
 
@@ -95,7 +82,6 @@ public abstract class Vehicle : MonoBehaviour
     {
         vehiclePosition = transform.position;
         myManager = transform.parent.GetComponent<VehicleManager>();
-        showLines = true;
         obstacles = myManager.Obstacles;
         forwardVector = Vector3.Normalize(vehiclePosition + direction);
         rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
@@ -104,27 +90,14 @@ public abstract class Vehicle : MonoBehaviour
         futurePosition = Instantiate(FuturePosition);
         wanderLoc = new Vector3(0, 0, 0);
         isAvoiding = false;
-        humans = myManager.Humans;
-        zombies = myManager.Zombies;
     }
 
     // Update is called once per frame
     void Update()
     {
-        futurePosition.transform.localPosition = transform.localPosition + velocity * SecondsAhead; 
-        forwardVector = Vector3.Normalize(vehiclePosition + direction);
-        rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
-        humans = myManager.Humans;
-        zombies = myManager.Zombies;
-
         if (!isExecuting)
         {
             StartCoroutine(ChangeLocation());
-        }
-
-        if (Input.GetKeyUp(KeyCode.D))
-        {
-            showLines = !showLines;
         }
 
         CalcSteeringForces();
@@ -139,14 +112,31 @@ public abstract class Vehicle : MonoBehaviour
         acceleration = Vector3.zero;
         transform.position = vehiclePosition;
 
-        //Forward debug line
-        Debug.DrawLine(vehiclePosition,
-            vehiclePosition + (direction * 3),
-            Color.green);
-        Vector3 right = new Vector3(direction.z, direction.y, -direction.x);
-        Debug.DrawLine(vehiclePosition,
-            vehiclePosition + (right * 3),
-            Color.blue);
+
+        if (direction != Vector3.zero)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                Quaternion.LookRotation(direction),
+                Time.deltaTime * 5
+            );
+        }
+
+        futurePosition.transform.localPosition = transform.localPosition + velocity * SecondsAhead;
+        forwardVector = Vector3.Normalize(vehiclePosition + direction);
+        rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
+
+        if (myManager.ShowLines)
+        {
+            //Forward debug line
+            Debug.DrawLine(vehiclePosition,
+                vehiclePosition + (direction * 3),
+                Color.green);
+            Vector3 right = new Vector3(direction.z, direction.y, -direction.x);
+            Debug.DrawLine(vehiclePosition,
+                vehiclePosition + (right * 3),
+                Color.blue);
+        }
 
     }
 
@@ -155,7 +145,7 @@ public abstract class Vehicle : MonoBehaviour
     /// </summary>
     public virtual void OnRenderObject()
     {
-        if (showLines)
+        if (myManager.ShowLines)
         {
             if(!futurePosition.activeInHierarchy)
             {
@@ -207,6 +197,8 @@ public abstract class Vehicle : MonoBehaviour
         friction = friction * coeff;
         ApplyForce(friction);
     }
+
+    #region Seek/Pursue | Flee/Evade
 
     /// <summary>
     /// Seek
@@ -273,6 +265,12 @@ public abstract class Vehicle : MonoBehaviour
         return Flee(target.transform.position);
     }
 
+    /// <summary>
+    /// Pursue
+    /// Zombies pursue the future position of the human
+    /// </summary>
+    /// <param name="target">Pursue this object</param>
+    /// <returns></returns>
     public Vector3 Pursue(GameObject target)
     {
         Vector3 targetPosition = target.transform.position;
@@ -291,6 +289,11 @@ public abstract class Vehicle : MonoBehaviour
         return pursueForce;
     }
 
+    /// <summary>
+    /// Allows Humans to avoid where the zombie will be.
+    /// </summary>
+    /// <param name="target">Evade this object</param>
+    /// <returns></returns>
     public Vector3 Evade(GameObject target)
     {
         Vector3 targetPosition = target.transform.position;
@@ -310,21 +313,28 @@ public abstract class Vehicle : MonoBehaviour
         // Step 4: Return force
         return evadeForce;
     }
+    #endregion
 
+    #region Obstacle Avoidance
     /// <summary>
     /// If you get to close to the edge, seek the center
     /// </summary>
     void AvoidEdge()
     {
-        if (transform.position.x > 40
-            || transform.position.x < -40
-            || transform.position.z > 40
-            || transform.position.z < -40)
+        if (transform.position.x > myManager.ArenaSize
+            || transform.position.x < -myManager.ArenaSize
+            || transform.position.z > myManager.ArenaSize
+            || transform.position.z < -myManager.ArenaSize)
         {
-            ApplyForce(Seek(new Vector3(-2, 5, 15)) * AvoidEdgeWeight);
+            ApplyForce(Seek(new Vector3(-0, 5, 0)) * AvoidEdgeWeight);
         }
     }
 
+    /// <summary>
+    /// My broken Avoid Obstacles method from the exercise
+    /// I'm pretty sure this wasn't working because it wasn't properly accessing the obstacle list, but I could be wrong
+    /// Now it just accesses the method from class.. :( See below.
+    /// </summary>
     private void AvoidObstacles()
     {
         /*float dot;
@@ -392,7 +402,8 @@ public abstract class Vehicle : MonoBehaviour
     }
 
     /// <summary>
-    /// Had a lot of difficulty getting this working, even the method from class(this one) isn't working how I wanted. You can see my method up above.
+    /// Had a lot of difficulty getting this working, even the method from class(this one) isn't working how I wanted. 
+    /// You can see my method up above. I used this to make testing easier, and in the end, it just worked better.
     /// </summary>
     /// <param name="obstacle"></param>
     /// <returns></returns>
@@ -452,6 +463,12 @@ public abstract class Vehicle : MonoBehaviour
         return steeringForce * AvoidObstacleWeight;
     }
 
+    #endregion
+
+    #region Wandering
+    /// <summary>
+    /// Wander Method
+    /// </summary>
     public void Wander()
     {
         circleCenter = velocity.normalized;
@@ -470,6 +487,10 @@ public abstract class Vehicle : MonoBehaviour
        
     }
 
+    /// <summary>
+    /// Changes Wander Location every second instead of every frame
+    /// </summary>
+    /// <returns></returns>
     IEnumerator ChangeLocation()
     {
         if(!isExecuting)
@@ -483,10 +504,7 @@ public abstract class Vehicle : MonoBehaviour
         
     }
 
-    public void Separate()
-    {
-
-    }
+    #endregion
 
     /// <summary>
     /// To be defined by each child class

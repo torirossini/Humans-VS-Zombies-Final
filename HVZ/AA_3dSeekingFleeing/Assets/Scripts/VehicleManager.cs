@@ -8,7 +8,6 @@ public class VehicleManager : MonoBehaviour
 {
     public GameObject ZombiePrefab;
     public GameObject HumanPrefab;
-    public GameObject TargetPrefab;
     public GameObject ObstaclePrefab;
 
     public int StartingHumans;
@@ -17,11 +16,16 @@ public class VehicleManager : MonoBehaviour
 
     public int SafeSpace = 10;
 
+    public float ArenaSize = 10;
+
     public List<GameObject> Zombies = new List<GameObject>();
     public List<GameObject> Humans = new List<GameObject>();
     public List<GameObject> Obstacles = new List<GameObject>();
 
     List<GameObject> tooClose;
+    Vector3 ultimateForce;
+
+    public bool ShowLines;
 
     List<int> toRemove = new List<int>();
 
@@ -29,6 +33,8 @@ public class VehicleManager : MonoBehaviour
 	void Start ()
     {
         FillLists();
+        ultimateForce = Vector3.zero;
+        tooClose = new List<GameObject>();
 	}
 	
 	// Update is called once per frame
@@ -48,12 +54,19 @@ public class VehicleManager : MonoBehaviour
             Zombies[Zombies.Count - 1].GetComponent<Zombie>().currentlySeeking = null;
             Zombies[Zombies.Count - 1].GetComponent<Zombie>().wandering = true;
         }
+        if (Input.GetKeyUp(KeyCode.D))
+        {
+            ShowLines = !ShowLines;
+        }
     }
 
     void Separate(List<GameObject> flock)
     {
+        
         foreach(GameObject obj in flock)
         {
+            tooClose.Clear();
+            ultimateForce = Vector3.zero;
             foreach (GameObject neighbor in flock)
             {
                 if (obj != neighbor && Vector3.Distance(obj.transform.position, neighbor.transform.position) < SafeSpace)
@@ -64,11 +77,11 @@ public class VehicleManager : MonoBehaviour
 
             foreach(GameObject close in tooClose)
             {
-                obj.GetComponent<Vehicle>().ApplyForce(obj.GetComponent<Vehicle>().Flee(close) 
-                    * (1 / Vector3.Distance(obj.transform.position, close.transform.position)));
+                ultimateForce += obj.GetComponent<Vehicle>().Flee(close)
+                    * (1 / Vector3.Distance(obj.transform.position, close.transform.position));
             }
+            obj.GetComponent<Vehicle>().ApplyForce(ultimateForce);
         }
-        
     }
 
 
@@ -107,7 +120,6 @@ public class VehicleManager : MonoBehaviour
         foreach (int num in toRemove)
         {
             Zombies.Add(Instantiate(ZombiePrefab, new Vector3(Humans[num].transform.position.x, 1, Humans[num].transform.position.z), Quaternion.identity, transform));
-
             Destroy(Humans[num]);
         }
         foreach (int num in toRemove)
@@ -167,13 +179,19 @@ public class VehicleManager : MonoBehaviour
     {
         for(int i = 0; i<StartingZombies; i++)
         { 
-            Zombies.Add(Instantiate(ZombiePrefab, new Vector3(Random.Range(-40, 40), 1, Random.Range(-40, 40)), Quaternion.identity, transform));
-            Zombies[i].GetComponent<Zombie>().Radius = 1f;
+            Zombies.Add(Instantiate(ZombiePrefab, new Vector3(
+                Random.Range(-ArenaSize, ArenaSize), 
+                1, 
+                Random.Range(-ArenaSize, ArenaSize)), Quaternion.identity, transform));
+            Zombies[i].GetComponent<Zombie>().Radius = .5f;
         }
 
         for (int i = 0; i < StartingHumans; i++)
         {
-            Humans.Add(Instantiate(HumanPrefab, new Vector3(Random.Range(-40, 40), .5f, Random.Range(-40, 40)), Quaternion.identity, transform));
+            Humans.Add(Instantiate(HumanPrefab, new Vector3(
+                Random.Range(-ArenaSize, ArenaSize), 
+                .5f, 
+                Random.Range(-ArenaSize, ArenaSize)), Quaternion.identity, transform));
             if(Zombies.Count != 0)
             {
                 Humans[i].GetComponent<Human>().CurrentlyFleeing = Zombies[0];
@@ -184,7 +202,10 @@ public class VehicleManager : MonoBehaviour
 
         for(int i = 0; i < StartingObstacles; i++)
         {
-            Obstacles.Add(Instantiate(ObstaclePrefab, new Vector3(Random.Range(-40, 40), .5f, Random.Range(-40, 40)), Quaternion.identity, transform));
+            Obstacles.Add(Instantiate(ObstaclePrefab, new Vector3(
+                Random.Range(-ArenaSize, ArenaSize), 
+                .5f, 
+                Random.Range(-ArenaSize, ArenaSize)), Quaternion.identity, transform));
         }
 
         for (int i = 0; i < StartingZombies; i++)

@@ -14,6 +14,6 @@ public class Obstacle : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        radius = 5;
+        radius = 3;
 	}
 }
