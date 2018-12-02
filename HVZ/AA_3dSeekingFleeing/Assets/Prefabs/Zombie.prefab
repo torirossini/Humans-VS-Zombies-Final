@@ -121,4 +121,13 @@ MonoBehaviour:
     type: 2}
   mass: 1
   maxSpeed: 5
+  DetectionRadius: 5
+  ProjectionDistance: 2
+  WanderRadius: 1
+  AvoidObstacleWeight: 2
+  AvoidEdgeWeight: 2
+  AvoidEnemyWeight: 1
+  SeekingWeight: 1
   currentlySeeking: {fileID: 0}
+  wandering: 0
+  Height: 5

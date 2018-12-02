@@ -7,8 +7,8 @@ using UnityEngine;
 /// </summary>
 public class Human : Vehicle
 {
-    private GameObject target;
-    private GameObject currentlyFleeing;
+    public GameObject currentlyFleeing;
+    public float Height = 2f;
 
     #region Properties
     public GameObject CurrentlyFleeing
@@ -17,17 +17,11 @@ public class Human : Vehicle
         set { currentlyFleeing = value; }
     }
 
-    public GameObject Target
-    {
-        get { return target; }
-        set { target = value; }
-    }
     #endregion
 
     private void Start()
     {
         base.Start();
-        target = transform.parent.GetComponent<VehicleManager>().TargetObj;
     } 
 
     /// <summary>
@@ -37,17 +31,20 @@ public class Human : Vehicle
     {
         Vector3 ultimateForce = Vector3.zero;
 
-        if(DistanceTo(currentlyFleeing) < 10f)
+        if(currentlyFleeing != null && DistanceTo(currentlyFleeing) < 10f)
+        {
+            ultimateForce += Flee(currentlyFleeing);
+        }
+        else if(currentlyFleeing != null && DistanceTo(currentlyFleeing) < 20f)
         {
             ultimateForce += Evade(currentlyFleeing);
         }
-        else
+        else if (!IsAvoiding)
         {
-            ApplyFriction(2f);
+            ApplyFriction(.5f);
+            Wander();
 
         }
-
-        ultimateForce += Seek(target);
 
         ApplyForce(ultimateForce);
     }

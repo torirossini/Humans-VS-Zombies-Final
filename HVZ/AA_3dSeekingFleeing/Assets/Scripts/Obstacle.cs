@@ -4,13 +4,7 @@ using UnityEngine;
 
 public class Obstacle : MonoBehaviour
 {
-    private Vector3 obstaclePosition;
     private float radius;
-
-    public Vector3 ObstaclePosition
-    {
-        get { return obstaclePosition; }
-    }
 
     public float Radius
     {
@@ -20,13 +14,6 @@ public class Obstacle : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        obstaclePosition = transform.position;
-        radius = transform.localScale.x / 2;
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-		
+        radius = 5;
 	}
 }

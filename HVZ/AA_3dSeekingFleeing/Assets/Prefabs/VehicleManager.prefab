@@ -59,9 +59,9 @@ MonoBehaviour:
     type: 2}
   ObstaclePrefab: {fileID: 1103832432602440, guid: d33e6ad0b2db3bf48a4fd10310aeaa68,
     type: 2}
-  StartingHumans: 5
+  StartingHumans: 10
   StartingZombies: 10
-  StartingObstacles: 3
+  StartingObstacles: 10
   Zombies: []
   Humans: []
   Obstacles: []

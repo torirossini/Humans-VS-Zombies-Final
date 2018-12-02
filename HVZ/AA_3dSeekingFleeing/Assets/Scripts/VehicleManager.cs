@@ -15,28 +15,20 @@ public class VehicleManager : MonoBehaviour
     public int StartingZombies;
     public int StartingObstacles;
 
+    public int SafeSpace = 10;
+
     public List<GameObject> Zombies = new List<GameObject>();
     public List<GameObject> Humans = new List<GameObject>();
     public List<GameObject> Obstacles = new List<GameObject>();
 
-    private GameObject targetObj;
+    List<GameObject> tooClose;
 
     List<int> toRemove = new List<int>();
-
-    public GameObject TargetObj
-    {
-        get
-        {
-            return targetObj;
-        }
-    }
 
 	// Use this for initialization
 	void Start ()
     {
         FillLists();
-        targetObj = Instantiate(TargetPrefab);
-        ChangeTargetLocation();
 	}
 	
 	// Update is called once per frame
@@ -48,8 +40,37 @@ public class VehicleManager : MonoBehaviour
             CheckHumans();
             TransformHumans();
             CheckZombies();
+            Separate(Humans);
         }
-	}
+        Separate(Zombies);
+        if (Humans.Count == 0)
+        {
+            Zombies[Zombies.Count - 1].GetComponent<Zombie>().currentlySeeking = null;
+            Zombies[Zombies.Count - 1].GetComponent<Zombie>().wandering = true;
+        }
+    }
+
+    void Separate(List<GameObject> flock)
+    {
+        foreach(GameObject obj in flock)
+        {
+            foreach (GameObject neighbor in flock)
+            {
+                if (obj != neighbor && Vector3.Distance(obj.transform.position, neighbor.transform.position) < SafeSpace)
+                {
+                    tooClose.Add(neighbor);
+                }
+            }
+
+            foreach(GameObject close in tooClose)
+            {
+                obj.GetComponent<Vehicle>().ApplyForce(obj.GetComponent<Vehicle>().Flee(close) 
+                    * (1 / Vector3.Distance(obj.transform.position, close.transform.position)));
+            }
+        }
+        
+    }
+
 
     /// <summary>
     /// Checks for the closest zombie to each human. Also handles collision between humans and zombies
@@ -58,11 +79,6 @@ public class VehicleManager : MonoBehaviour
     {
         for(int i = 0; i < Humans.Count; i++)
         {
-           
-            if (Vector3.Distance(Humans[i].transform.position, targetObj.transform.position) < 5)
-            {
-                ChangeTargetLocation();
-            }
 
             for(int j=0; j< Zombies.Count; j++)
             {
@@ -91,11 +107,17 @@ public class VehicleManager : MonoBehaviour
         foreach (int num in toRemove)
         {
             Zombies.Add(Instantiate(ZombiePrefab, new Vector3(Humans[num].transform.position.x, 1, Humans[num].transform.position.z), Quaternion.identity, transform));
+
             Destroy(Humans[num]);
         }
         foreach (int num in toRemove)
         {
             Humans.RemoveAt(num);
+        }
+        if (Humans.Count == 0)
+        {
+            Zombies[Zombies.Count - 1].GetComponent<Zombie>().currentlySeeking = null;
+            Zombies[Zombies.Count - 1].GetComponent<Zombie>().wandering = true;
         }
     }
 
@@ -109,6 +131,7 @@ public class VehicleManager : MonoBehaviour
             if (Humans.Count == 0)
             {
                 zomb.GetComponent<Zombie>().currentlySeeking = zomb;
+                zomb.GetComponent<Zombie>().wandering = true;
             }
             else
             {
@@ -135,14 +158,6 @@ public class VehicleManager : MonoBehaviour
                 zomb.GetComponent<Zombie>().currentlySeeking = closestHuman;
             }
         }
-    }
-
-    /// <summary>
-    /// Changes the target location to a random coordinate on the plane
-    /// </summary>
-    private void ChangeTargetLocation()
-    {
-        targetObj.transform.localPosition = new Vector3(Random.Range(-40, 40), .45855f, Random.Range(-40, 40));
     }
 
     /// <summary>

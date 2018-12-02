@@ -14,7 +14,7 @@ public abstract class Vehicle : MonoBehaviour
     public Vector3 direction;
     public Vector3 velocity;
     public Vector3 rotation;
-    public float SecondsAhead = 2;
+    public float SecondsAhead = 1;
 
     public Material greenForward;
     public Material blueRight;
@@ -26,18 +26,32 @@ public abstract class Vehicle : MonoBehaviour
     // Floats
     public float mass;
     public float maxSpeed;
+    public float DetectionRadius = 5;
+    public float ProjectionDistance = 2f;
+    public float WanderRadius = 1f;
+
+    private float angle;
+    private Vector3 wanderLoc;
+    private Vector3 circleCenter;
 
     private VehicleManager myManager;
     private List<GameObject> obstacles;
     private List<GameObject> obstaclesInFront;
     private List<GameObject> potentialCollisions;
 
+    private List<GameObject> tooClose;
+    private List<GameObject> humans;
+    private List<GameObject> zombies;
+
+
+
     private Vector3 forwardVector;
     private Vector3 rightVector;
     private GameObject futurePosition;
 
     private bool showLines;
-
+    private bool isExecuting;
+    private bool isAvoiding;
     //Collision Detection
     float radius;
     #endregion
@@ -59,6 +73,21 @@ public abstract class Vehicle : MonoBehaviour
         get { return futurePosition; }
         set { futurePosition = value; }
     }
+
+    public bool IsAvoiding
+    {
+        get { return isAvoiding; }
+    }
+
+
+    #endregion
+
+    #region Weighting
+    public float AvoidObstacleWeight = 7;
+    public float AvoidEdgeWeight = 1;
+    public float AvoidEnemyWeight = 1;
+    public float SeekingWeight = 1;
+
     #endregion
 
     // Use this for initialization
@@ -73,6 +102,10 @@ public abstract class Vehicle : MonoBehaviour
         obstaclesInFront = new List<GameObject>();
         potentialCollisions = new List<GameObject>();
         futurePosition = Instantiate(FuturePosition);
+        wanderLoc = new Vector3(0, 0, 0);
+        isAvoiding = false;
+        humans = myManager.Humans;
+        zombies = myManager.Zombies;
     }
 
     // Update is called once per frame
@@ -81,8 +114,13 @@ public abstract class Vehicle : MonoBehaviour
         futurePosition.transform.localPosition = transform.localPosition + velocity * SecondsAhead; 
         forwardVector = Vector3.Normalize(vehiclePosition + direction);
         rightVector = Vector3.Normalize(new Vector3(direction.z, direction.y, -direction.x));
+        humans = myManager.Humans;
+        zombies = myManager.Zombies;
 
-        ApplyForce(AvoidObstacle());
+        if (!isExecuting)
+        {
+            StartCoroutine(ChangeLocation());
+        }
 
         if (Input.GetKeyUp(KeyCode.D))
         {
@@ -91,6 +129,7 @@ public abstract class Vehicle : MonoBehaviour
 
         CalcSteeringForces();
         AvoidEdge();
+        AvoidObstacles();
 
         velocity += acceleration * Time.deltaTime;
         velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
@@ -153,6 +192,7 @@ public abstract class Vehicle : MonoBehaviour
     // Receive an incoming force, divide by mass, and apply to the cumulative accel vector
     public void ApplyForce(Vector3 force)
     {
+        force.y = 0;
         acceleration += force / mass;
     }
 
@@ -264,7 +304,7 @@ public abstract class Vehicle : MonoBehaviour
         desiredVelocity.Normalize();
         desiredVelocity = desiredVelocity * maxSpeed;
 
-        // Step 3:  Calculate seeking steering force
+        // Step 3:  Calculate evasion steering force
         Vector3 evadeForce = (desiredVelocity - velocity) * -1;
 
         // Step 4: Return force
@@ -276,35 +316,33 @@ public abstract class Vehicle : MonoBehaviour
     /// </summary>
     void AvoidEdge()
     {
-        if (transform.localPosition.x > 40
-            || transform.localPosition.x < -40
-            || transform.localPosition.z > 40
-            || transform.localPosition.z < -40)
+        if (transform.position.x > 40
+            || transform.position.x < -40
+            || transform.position.z > 40
+            || transform.position.z < -40)
         {
-            Seek(new Vector3(-2, 5, 15));
+            ApplyForce(Seek(new Vector3(-2, 5, 15)) * AvoidEdgeWeight);
         }
     }
 
-
-    //Remember to add threat radius later
-    private Vector3 AvoidObstacle()
+    private void AvoidObstacles()
     {
-        obstaclesInFront.Clear();
-        potentialCollisions.Clear();
-
-        float dot;
+        /*float dot;
 
         //So I guess all vehicles are aware of all obstacles in the scene
         foreach (GameObject obst in obstacles)
         {
-            //Check the dot product of the forward vector and the vector between the vehicle and the object.
-            //If it's positive, it's in front of the vehicle
-            //If it's negative, it's behind the vehicle
-            dot = Vector3.Dot(forwardVector, (transform.position - obst.transform.position));
-
-            if (dot > 0)
+            if (Vector3.Distance(obst.transform.position, transform.position) < DetectionRadius)
             {
-                obstaclesInFront.Add(obst);
+                //Check the dot product of the forward vector and the vector between the vehicle and the object.
+                //If it's positive, it's in front of the vehicle
+                //If it's negative, it's behind the vehicle
+                dot = Vector3.Dot(forwardVector, (transform.position - obst.transform.position));
+
+                if (dot > 0)
+                {
+                    obstaclesInFront.Add(obst);
+                }
             }
         }
         // Now we can check all the obstacles in front of the objects
@@ -324,15 +362,130 @@ public abstract class Vehicle : MonoBehaviour
         {
             if(Vector3.Dot((transform.position - obst.transform.position), rightVector) > 0)
             {
-                avoidForce += (-rightVector * 5) - (transform.position - obst.transform.position);
+                avoidForce += (-rightVector * AvoidObstacleWeight) - (transform.position - obst.transform.position);
+                isAvoiding = true;
+                //Debug.Log("AVOID!");
             }
             else
             {
-                avoidForce += (rightVector * 5) - (transform.position - obst.transform.position);
+                avoidForce += (rightVector ) - (transform.position - obst.transform.position);
+                isAvoiding = true;
+               // Debug.Log("AVOID!");
             }
         }
 
-        return avoidForce;
+        if(potentialCollisions.Count == 0)
+        {
+            isAvoiding = false;
+        }
+
+        ApplyForce(avoidForce * AvoidObstacleWeight);
+
+        obstaclesInFront.Clear();
+        potentialCollisions.Clear();*/
+
+        foreach(GameObject obs in obstacles)
+        {
+            ApplyForce(ObstacleAvoidance(obs));
+        }
+
+    }
+
+    /// <summary>
+    /// Had a lot of difficulty getting this working, even the method from class(this one) isn't working how I wanted. You can see my method up above.
+    /// </summary>
+    /// <param name="obstacle"></param>
+    /// <returns></returns>
+    protected Vector3 ObstacleAvoidance(GameObject obstacle)
+    {
+        // Info needed for obstacle avoidance
+        Vector3 vecToCenter = obstacle.transform.position - transform.position;
+        float dotForward = Vector3.Dot(vecToCenter, transform.forward);
+        float dotRight = Vector3.Dot(vecToCenter, transform.right);
+        float radiiSum = obstacle.GetComponent<Obstacle>().Radius + radius;
+
+        // Step 1: Are there objects in front of me?  
+        // If obstacle is behind, ignore, no need to steer - exit method
+        // Compare dot forward < 0
+        if (dotForward < 0)
+        {
+            return Vector3.zero;
+        }
+
+        // Step 2: Are the obstacles close enough to me?  
+        // Do they fit within my "safe" distance
+        // If the distance > safe, exit method
+        if (vecToCenter.magnitude > DetectionRadius)
+        {
+            return Vector3.zero;
+        }
+
+        // Step 3:  Check radii sum against distance on one axis
+        // Check dot right, 
+        // If dot right is > radii sum, exit method
+        if (radiiSum < Mathf.Abs(dotRight)/2)
+        {
+            return Vector3.zero;
+        }
+
+        // NOW WE HAVE TO STEER!  
+        // The only way to get to this code is if the obstacle is in my path
+        // Determine if obstacle is to my left or right
+        // Desired velocity in opposite direction * max speed
+        Vector3 desiredVelocity;
+
+        if (dotRight < 0)        // Left
+        {
+            desiredVelocity = transform.right * maxSpeed;
+        }
+        else                    // Right
+        {
+            desiredVelocity = -transform.right * maxSpeed;
+        }
+
+        // Debug line to obstacle
+        // Helpful to see which obstacle(s) a vehicle is attempting to maneuver around
+        Debug.DrawLine(transform.position, obstacle.transform.position, Color.green);
+
+        // Return steering force
+        Vector3 steeringForce = desiredVelocity - velocity;
+        return steeringForce * AvoidObstacleWeight;
+    }
+
+    public void Wander()
+    {
+        circleCenter = velocity.normalized;
+        circleCenter = circleCenter * ProjectionDistance + transform.position;
+
+        Vector3 displacement = new Vector3(0, -1);
+        displacement = displacement * WanderRadius;
+
+        
+
+        displacement.Set(Mathf.Cos(angle) * WanderRadius, 0, Mathf.Sin(angle) * WanderRadius);
+
+        wanderLoc = circleCenter + displacement;
+
+        ApplyForce(Seek(wanderLoc));
+       
+    }
+
+    IEnumerator ChangeLocation()
+    {
+        if(!isExecuting)
+        {
+            angle = Random.Range(0, 180);
+            isExecuting = true;
+        }
+        yield return new WaitForSeconds(1.0f);
+        isExecuting = false;
+
+        
+    }
+
+    public void Separate()
+    {
+
     }
 
     /// <summary>

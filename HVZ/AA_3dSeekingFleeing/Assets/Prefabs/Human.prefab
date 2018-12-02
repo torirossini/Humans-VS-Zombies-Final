@@ -120,4 +120,13 @@ MonoBehaviour:
   FuturePosition: {fileID: 1913483544557360, guid: 58a4cd5ee57d55240862ecf9f07898ea,
     type: 2}
   mass: 0.3
-  maxSpeed: 5
+  maxSpeed: 4
+  DetectionRadius: 7
+  ProjectionDistance: 10
+  WanderRadius: 2
+  AvoidObstacleWeight: 2
+  AvoidEdgeWeight: 2
+  AvoidEnemyWeight: 1
+  SeekingWeight: 1
+  currentlyFleeing: {fileID: 0}
+  Height: 2

@@ -8,10 +8,13 @@ using UnityEngine;
 public class Zombie : Vehicle
 {
     public GameObject currentlySeeking;
+    public bool wandering;
+    public float Height = 5f;
 
     private void Start()
     {
         base.Start();
+        wandering = false;
     }
 
     /// <summary>
@@ -40,7 +43,14 @@ public class Zombie : Vehicle
     {
         Vector3 ultimateForce = Vector3.zero;
 
-        ultimateForce += Pursue(currentlySeeking);
+        if (wandering)
+        {
+            Wander();
+        }
+        else
+        {
+            ultimateForce += Pursue(currentlySeeking);
+        }
 
         ApplyForce(ultimateForce);
     }
