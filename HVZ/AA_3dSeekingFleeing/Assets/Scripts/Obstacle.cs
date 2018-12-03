@@ -6,6 +6,9 @@ public class Obstacle : MonoBehaviour
 {
     private float radius;
 
+    /// <summary>
+    /// Radius for Obstacles
+    /// </summary>
     public float Radius
     {
         get { return radius; }

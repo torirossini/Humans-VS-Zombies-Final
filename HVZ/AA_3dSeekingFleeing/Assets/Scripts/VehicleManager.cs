@@ -26,6 +26,8 @@ public class VehicleManager : MonoBehaviour
     Vector3 ultimateForce;
 
     public bool ShowLines;
+    public bool ZombieSpeedy;
+    public bool HumanSpeedy;
 
     List<int> toRemove = new List<int>();
 
@@ -35,8 +37,89 @@ public class VehicleManager : MonoBehaviour
         FillLists();
         ultimateForce = Vector3.zero;
         tooClose = new List<GameObject>();
+        ZombieSpeedy = false;
+        HumanSpeedy = false;
 	}
 	
+    /// <summary>
+    /// Toggles Speeding Zombies
+    /// </summary>
+    public void ToggleSpeedZombies()
+    {
+        if (!ZombieSpeedy)
+        {
+            foreach (GameObject zomb in Zombies)
+            {
+                zomb.GetComponent<Vehicle>().maxSpeed = zomb.GetComponent<Vehicle>().maxSpeed * 2;
+                zomb.GetComponent<Vehicle>().acceleration = zomb.GetComponent<Vehicle>().acceleration * 2;
+            }
+            ZombieSpeedy = true;
+        }
+        else
+        {
+            foreach (GameObject zomb in Zombies)
+            {
+                zomb.GetComponent<Vehicle>().maxSpeed = zomb.GetComponent<Vehicle>().maxSpeed / 2;
+                zomb.GetComponent<Vehicle>().acceleration = zomb.GetComponent<Vehicle>().acceleration / 2;
+            }
+            ZombieSpeedy = false;
+        }
+    }
+
+    /// <summary>
+    /// Toggles Speeding Humans
+    /// </summary>
+    public void ToggleSpeedHumans()
+    {
+        if (!HumanSpeedy)
+        {
+            foreach (GameObject zomb in Humans)
+            {
+                zomb.GetComponent<Vehicle>().maxSpeed = zomb.GetComponent<Vehicle>().maxSpeed * 2;
+                zomb.GetComponent<Vehicle>().acceleration = zomb.GetComponent<Vehicle>().acceleration * 2;
+            }
+            HumanSpeedy = true;
+        }
+        else
+        {
+            foreach (GameObject zomb in Humans)
+            {
+                zomb.GetComponent<Vehicle>().maxSpeed = zomb.GetComponent<Vehicle>().maxSpeed / 2;
+                zomb.GetComponent<Vehicle>().acceleration = zomb.GetComponent<Vehicle>().acceleration / 2;
+            }
+            HumanSpeedy = false;
+        }
+    }
+
+    /// <summary>
+    /// Resets simulation
+    /// </summary>
+    public void RestartSim()
+    {
+        foreach(GameObject zomb in Zombies)
+        {
+            Destroy(zomb.GetComponent<Vehicle>().FuturePositionObject);
+            Destroy(zomb);
+        }
+        foreach (GameObject hoo in Humans)
+        {
+            Destroy(hoo.GetComponent<Vehicle>().FuturePositionObject);
+            Destroy(hoo);
+        }
+        Zombies.Clear();
+        Humans.Clear();
+
+        foreach (GameObject obs in Obstacles)
+        {
+            Destroy(obs);
+        }
+        Obstacles.Clear();
+
+        FillLists();
+        ultimateForce = Vector3.zero;
+        tooClose = new List<GameObject>();
+
+    }
 	// Update is called once per frame
 	void Update ()
     {
@@ -60,6 +143,10 @@ public class VehicleManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Enforces personal space between vehicles
+    /// </summary>
+    /// <param name="flock">Either Human list or Zombie list</param>
     void Separate(List<GameObject> flock)
     {
         

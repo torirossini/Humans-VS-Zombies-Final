@@ -50,6 +50,8 @@ public abstract class Vehicle : MonoBehaviour
     #endregion
 
     #region Properties
+
+
     public float Radius
     {
         get { return radius; }
